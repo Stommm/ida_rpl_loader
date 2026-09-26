@@ -1,13 +1,12 @@
-#include <idaldr.h>
+#include "../idaldr.h"
 #include <typeinf.hpp>
 
-#include <elf/elfbase.h>
-#include <elf/elfr_ppc.h>
+#include "../elf/elfbase.h"
+#include "../elf/elfr_ppc.h"
 
 #include <set>
 
 extern "C" {
-#define TINFL_HEADER_FILE_ONLY
 #include "tinfl.c"
 }
 
@@ -679,6 +678,7 @@ setSdaBase(LoadedFile &file)
    ph.set_idp_options("PPC_TOC", IDPOPT_NUM, &sda2Base);
 }
 
+
 static void
 setProcessorOptions()
 {
@@ -694,6 +694,7 @@ setProcessorOptions()
 #endif
    ph.set_idp_options("PPC_LISOFF", IDPOPT_BIT, &lisoff);
 }
+
 
 static void
 setCompilerOptions()
@@ -714,7 +715,7 @@ setCompilerOptions()
 }
 
 static int idaapi
-acceptFile(qstring *fileformatname, /* [out] */
+accept_file(qstring *fileformatname, /* [out] */
            qstring *processor,      /* [out] */
            linput_t *li,
            const char *filename)
@@ -735,6 +736,7 @@ loadFile(linput_t *li,
          ushort neflags,
          const char *fileformatname)
 {
+
    LoadedFile file;
    qstring errorMsg;
 
@@ -742,7 +744,7 @@ loadFile(linput_t *li,
    setCompilerOptions();
 
    if (!loadElfHeader(li, file.ehdr, errorMsg)) {
-      loader_failure(errorMsg.c_str());
+      loader_failure("poop");
    }
 
    loadSections(li, file);
@@ -757,13 +759,31 @@ loadFile(linput_t *li,
    setSdaBase(file);
 }
 
-loader_t ida_module_data LDSC =
+#define STR2(x) #x
+#define STR(x) STR2(x)
+
+#pragma message("IDP_INTERFACE_VERSION = " STR(IDP_INTERFACE_VERSION))
+
+loader_t LDSC =
 {
   IDP_INTERFACE_VERSION,
-  0, // flags
-  acceptFile,
+  0,                            // loader flags
+//
+//      check input file format. if recognized, then return 1
+//      and fill 'fileformatname'.
+//      otherwise return 0
+//
+  accept_file,
+//
+//      load file into the database.
+//
   loadFile,
-  NULL, // save_file
-  NULL, // move_segm
-  NULL, // process_archive
+//
+//      create output file from the database.
+//      this function may be absent.
+//
+  nullptr,
+//      take care of a moved segment (fix up relocations, for example)
+  nullptr,
+  nullptr,
 };
