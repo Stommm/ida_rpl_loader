@@ -1,4 +1,4 @@
 # ida_rpl_loader
-IDA v7+ Wii U RPL Loader, compile as per instructions in the IDA SDK.
+IDA v9.0 Wii U RPL Loader
 
-Only tested on IDA 7.1
+Only tested on IDA 9.0 running on a intel mac
